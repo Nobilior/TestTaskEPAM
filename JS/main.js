@@ -1,28 +1,33 @@
-var xhr = new XMLHttpRequest();
+var users;
+var successfulStatus = 200;
 
-xhr.open('GET', 'https://api.randomuser.me/1.0/?results=50&nat=gb,us&inc=gender,name,location,email,phone,picture', false);
+function getUsers() {
+	var xhr = new XMLHttpRequest();
+	
+	xhr.open('GET', 'https://api.randomuser.me/1.0/?results=50&nat=gb,us&inc=gender,name,location,email,phone,picture', false);
 
-xhr.send();
-
-if (xhr.status != 200) {
+	xhr.send();
+	if (xhr.status != successfulStatus) {
+		alert("Data not found. Reload page");
+		return;
+	}
+	var response = JSON.parse(xhr.responseText);
+    
+    users = response.results;
 }
-
-var response = JSON.parse(xhr.responseText);
-var users = response.results;
-
-function closeModal() {
-	var modal = document.getElementById('myModal');
-	modal.style.display = "none";
-}
-
 
 window.onload = function() {
-	for (var i = 0; i < 50; i++) {
+	getUsers();
+	createUserItems();
+}
+
+function createUserItems() {
+	for (var i = 0; i < users.length; i++) {
 		var user = users[i];
 
 		var divContentUser = document.createElement('div');
 		divContentUser.className = 'content-user';
-		document.body.children[1].children[0].children[0].appendChild(divContentUser);
+		document.getElementById('main-users').appendChild(divContentUser);
 
 		var divUserCard = document.createElement('div');
 		divUserCard.className = 'user-card';
@@ -36,6 +41,7 @@ window.onload = function() {
 		imgUser.className = 'img-user';
 		imgUser.id = [i];
 		imgUser.onclick = openModal;
+		imgUser.src = user.picture.medium;
 		divPicture.appendChild(imgUser);
 
 		var divDescription = document.createElement('div');
@@ -45,12 +51,8 @@ window.onload = function() {
 		var pName = document.createElement('p');
 		pName.className = 'name';
 		divDescription.appendChild(pName);
-
-		var pNameElement = document.getElementsByClassName('name')[i];
-		pNameElement.innerHTML = user.name.title + ' ' + user.name.first + ' ' + user.name.last;
-
-		var imgUserElement = document.getElementsByClassName('img-user')[i];
-		imgUserElement.src = user.picture.medium;
+		pName.innerHTML = user.name.title + ' ' + user.name.first + ' ' + user.name.last;
+		
 	}
 }
 
@@ -59,25 +61,25 @@ function openModal(event) {
 	var modal = document.getElementById('myModal');
 	var user = users[id];
 
-	var modalImg = document.getElementsByClassName('modal-img')[0];
+	var modalImg = document.getElementById('user-img-large');
 	modalImg.src = user.picture.large;
 
-	var modalName = document.getElementsByClassName('modal-name')[0];
+	var modalName = document.getElementById('modal-full-name');
 	modalName.innerHTML = user.name.title + ' ' + user.name.first + ' ' + user.name.last;
 
-	var modalGender = document.getElementsByClassName('modal-gender')[0];
+	var modalGender = document.getElementById('modal-user-gender');
 	modalGender.innerHTML = user.gender;
 
-	var modalEmale = document.getElementsByClassName('modal-email')[0];
-	modalEmale.innerHTML = user.email;
+	var modalEmail = document.getElementById('modal-user-email');
+	modalEmail.innerHTML = user.email;
 
-	var modalLocation = document.getElementsByClassName('modal-location')[0];
+	var modalLocation = document.getElementById('modal-user-location');
 	modalLocation.innerHTML = user.location.state + ' ' + user.location.city + ' ' + user.location.street + ' ' + user.location.postcode;
 
-	var modalPhone = document.getElementsByClassName('modal-phone')[0];
-	modalPhone = user.phone;
+	var modalPhone = document.getElementById('modal-user-phone');
+	modalPhone.innerHTML = user.phone;
 
-    modal.style.display = "block";
+	modal.style.display = "block";
 }
 
 window.onclick = function(event) {
@@ -85,6 +87,11 @@ window.onclick = function(event) {
 	if (event.target == modal) {
   		modal.style.display = "none";
 	}
+}
+
+function closeModal() {
+	var modal = document.getElementById('myModal');
+	modal.style.display = "none";
 }
 
 
